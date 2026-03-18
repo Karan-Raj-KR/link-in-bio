@@ -12,7 +12,7 @@ export default function Home() {
             {/* Fallback pattern if image is missing */}
             <div className="absolute inset-0 bg-gradient-to-tr from-neutral-800 to-neutral-700" />
             <Image
-              src="/profile.png"
+              src="/profile.jpeg"
               alt="Karan Raj"
               fill
               className="object-cover relative z-10"
@@ -37,19 +37,19 @@ export default function Home() {
 
         {/* PRIMARY ACTION BUTTONS */}
         <section className="w-full space-y-3.5 mb-20 flex flex-col items-center">
-          <Button href="#portfolio" variant="primary">
+          <Button href="https://karanrajkr.vercel.app" variant="primary" external>
             View Portfolio <ArrowUpRight className="w-[1.125rem] h-[1.125rem] ml-1 opacity-70" />
           </Button>
-          <Button href="https://github.com/karanrajkr" external>
+          <Button href="https://github.com/Karan-Raj-KR" external>
             <Github className="w-[1.125rem] h-[1.125rem] mr-1.5 opacity-70" /> GitHub
           </Button>
-          <Button href="https://linkedin.com/in/karanrajkr" external>
+          <Button href="https://www.linkedin.com/in/karanrajkr/" external>
             <Linkedin className="w-[1.125rem] h-[1.125rem] mr-1.5 opacity-70" /> LinkedIn
           </Button>
-          <Button href="https://instagram.com/karanrajkr" external>
+          <Button href="https://www.instagram.com/karan.rajkr/" external>
             <Instagram className="w-[1.125rem] h-[1.125rem] mr-1.5 opacity-70" /> Instagram
           </Button>
-          <Button href="mailto:contact@example.com">
+          <Button href="mailto:karanrajkr2008@gmail.com">
             <Mail className="w-[1.125rem] h-[1.125rem] mr-1.5 opacity-70" /> Contact Me
           </Button>
         </section>
@@ -65,13 +65,13 @@ export default function Home() {
 
         {/* FOOTER */}
         <footer className="w-full flex justify-center space-x-6 py-8 border-t border-white/[0.05] mt-auto">
-          <a href="https://github.com/karanrajkr" target="_blank" rel="noreferrer" className="text-neutral-500 hover:text-white hover:scale-110 transition-all duration-300">
+          <a href="https://github.com/Karan-Raj-KR" target="_blank" rel="noreferrer" className="text-neutral-500 hover:text-white hover:scale-110 transition-all duration-300">
             <Github className="w-[1.125rem] h-[1.125rem]" />
           </a>
-          <a href="https://linkedin.com/in/karanrajkr" target="_blank" rel="noreferrer" className="text-neutral-500 hover:text-white hover:scale-110 transition-all duration-300">
+          <a href="https://www.linkedin.com/in/karanrajkr/" target="_blank" rel="noreferrer" className="text-neutral-500 hover:text-white hover:scale-110 transition-all duration-300">
             <Linkedin className="w-[1.125rem] h-[1.125rem]" />
           </a>
-          <a href="mailto:contact@example.com" className="text-neutral-500 hover:text-white hover:scale-110 transition-all duration-300">
+          <a href="mailto:karanrajkr2008@gmail.com" className="text-neutral-500 hover:text-white hover:scale-110 transition-all duration-300">
             <Mail className="w-[1.125rem] h-[1.125rem]" />
           </a>
         </footer>
