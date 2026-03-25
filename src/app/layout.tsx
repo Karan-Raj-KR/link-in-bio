@@ -17,10 +17,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} antialiased dark`}>
       <body className="font-sans min-h-screen bg-black text-white selection:bg-white/20 overflow-x-hidden relative">
-        <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
-          <div className="glow-blob bg-blue-500 w-[500px] h-[500px] top-[-20%] left-[-10%] opacity-[0.08]" />
-          <div className="glow-blob bg-purple-500 w-[400px] h-[400px] bottom-[-10%] right-[-10%] opacity-[0.08]" />
-        </div>
         {children}
       </body>
     </html>

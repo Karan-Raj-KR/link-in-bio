@@ -1,111 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, memo, useRef } from "react";
-import { Github, Linkedin, Instagram, Mail, ExternalLink, Briefcase, Lock, Sparkles } from "lucide-react";
-
-// ============================================
-// OPTIMISED TYPES
-// ============================================
-interface MousePosition {
-  x: number;
-  y: number;
-}
-
-// ============================================
-// CSS-ONLY PARTICLES (No JS RAF Loop)
-// ============================================
-const CSSParticles = memo(function CSSParticles() {
-  return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      {useMemo(() => Array.from({ length: 20 }, (_, i) => {
-        const size = 1 + (i % 3);
-        const left = (i * 5) % 100;
-        const delay = i * 0.5;
-        const duration = 15 + (i % 10);
-        
-        return (
-          <div
-            key={i}
-            className="absolute rounded-full bg-white/20"
-            style={{
-              left: `${left}%`,
-              width: `${size}px`,
-              height: `${size}px`,
-              animation: `float-particle ${duration}s linear ${delay}s infinite`,
-              boxShadow: `0 0 ${size * 2}px ${size / 2}px rgba(255,255,255,0.15)`,
-            }}
-          />
-        );
-      }), [])}
-    </div>
-  );
-});
-
-// ============================================
-// LAZY LOADED CURSOR (Only on Desktop)
-// ============================================
-const CustomCursor = memo(function CustomCursor({ 
-  mousePosition, 
-  isHovering 
-}: {
-  mousePosition: MousePosition;
-  isHovering: boolean;
-}) {
-  return (
-    <>
-      <div
-        className="fixed pointer-events-none z-[9999] mix-blend-difference hidden md:block will-change-transform"
-        style={{
-          left: mousePosition.x,
-          top: mousePosition.y,
-          transform: `translate(-50%, -50%) scale(${isHovering ? 2.5 : 1})`,
-          width: 20,
-          height: 20,
-          backgroundColor: "white",
-          borderRadius: "50%",
-          transition: "transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        }}
-      />
-      <div
-        className="fixed pointer-events-none z-[9998] hidden md:block will-change-transform"
-        style={{
-          left: mousePosition.x,
-          top: mousePosition.y,
-          transform: `translate(-50%, -50%)`,
-          width: isHovering ? 80 : 35,
-          height: isHovering ? 80 : 35,
-          background: `radial-gradient(circle, rgba(255,255,255,${isHovering ? 0.25 : 0.12}) 0%, transparent 70%)`,
-          borderRadius: "50%",
-          transition: "width 0.2s ease, height 0.2s ease",
-        }}
-      />
-    </>
-  );
-});
-
-// ============================================
-// OPTIMISED MORPHING BLOBS (CSS Animations)
-// ============================================
-const MorphingBlobs = memo(function MorphingBlobs() {
-  return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none will-change-transform" aria-hidden="true">
-      <div
-        className="absolute top-[20%] left-[15%] w-[400px] h-[400px] rounded-full opacity-20 blur-[100px]"
-        style={{
-          background: "radial-gradient(circle, rgba(147,51,234,0.5) 0%, transparent 70%)",
-          animation: "morph 10s ease-in-out infinite, drift 20s ease-in-out infinite",
-        }}
-      />
-      <div
-        className="absolute bottom-[25%] right-[20%] w-[350px] h-[350px] rounded-full opacity-15 blur-[80px]"
-        style={{
-          background: "radial-gradient(circle, rgba(59,130,246,0.4) 0%, transparent 70%)",
-          animation: "morph 12s ease-in-out infinite reverse, drift 25s ease-in-out infinite reverse",
-        }}
-      />
-    </div>
-  );
-});
+import { Github, Linkedin, Instagram, Mail, ExternalLink } from "lucide-react";
 
 // ============================================
 // TEXT SCRAMBLE (Memoised)
@@ -144,15 +40,13 @@ interface TiltButtonProps {
   label: string;
   variant?: "primary" | "secondary";
   icon?: React.ReactNode;
-  onHoverChange?: (hovering: boolean) => void;
 }
 
 const TiltButton = memo(function TiltButton({ 
   href, 
   label, 
   variant = "secondary", 
-  icon, 
-  onHoverChange,
+  icon,
 }: TiltButtonProps) {
   const [transform, setTransform] = useState("translate3d(0,0,0)");
   const [isHovered, setIsHovered] = useState(false);
@@ -170,16 +64,14 @@ const TiltButton = memo(function TiltButton({
 
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true);
-    onHoverChange?.(true);
-  }, [onHoverChange]);
+  }, []);
 
   const handleMouseLeave = useCallback(() => {
     setTransform("translate3d(0,0,0)");
     setIsHovered(false);
-    onHoverChange?.(false);
-  }, [onHoverChange]);
+  }, []);
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
+  const handleClick = useCallback(() => {
     const id = Date.now();
     setRipples(prev => [...prev, id]);
     setTimeout(() => setRipples(prev => prev.filter(r => r !== id)), 600);
@@ -317,35 +209,6 @@ const RevealSection = memo(function RevealSection({
 // MAIN PAGE (Optimised)
 // ============================================
 export default function LinkInBio() {
-  const [mousePosition, setMousePosition] = useState<MousePosition>({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-  const mouseTimeoutRef = useRef<NodeJS.Timeout>();
-  const lastMouseRef = useRef<MousePosition>({ x: 0, y: 0 });
-
-  // Debounced mouse tracking (16ms = ~60fps)
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      lastMouseRef.current = { x: e.clientX, y: e.clientY };
-      
-      if (mouseTimeoutRef.current) return;
-      
-      mouseTimeoutRef.current = setTimeout(() => {
-        setMousePosition(lastMouseRef.current);
-        mouseTimeoutRef.current = undefined;
-      }, 16);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      if (mouseTimeoutRef.current) clearTimeout(mouseTimeoutRef.current);
-    };
-  }, []);
-
-  const handleHoverChange = useCallback((hovering: boolean) => {
-    setIsHovering(hovering);
-  }, []);
-
   const links = useMemo(() => [
     { href: "https://github.com/Karan-Raj-KR", label: "GitHub", icon: <Github className="w-4 h-4" /> },
     { href: "https://linkedin.com/in/karanrajkr", label: "LinkedIn", icon: <Linkedin className="w-4 h-4" /> },
@@ -353,31 +216,9 @@ export default function LinkInBio() {
     { href: "mailto:karanrajkr2008@gmail.com", label: "Contact Me", icon: <Mail className="w-4 h-4" /> },
   ], []);
 
-  const projects = useMemo(() => [
-    { name: "AI Agent Framework", icon: <Sparkles className="w-4 h-4" />, status: "Beta" },
-    { name: "Open Source CLI Tools", icon: <Lock className="w-4 h-4" />, status: "Active" },
-    { name: "Portfolio Redesign", icon: <Briefcase className="w-4 h-4" />, status: "Soon" },
-  ], []);
-
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       <style>{`
-        @keyframes float-particle {
-          0% { transform: translateY(110vh) translateX(0); opacity: 0; }
-          10% { opacity: 0.4; }
-          90% { opacity: 0.4; }
-          100% { transform: translateY(-10vh) translateX(20px); opacity: 0; }
-        }
-        @keyframes morph {
-          0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-          50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-        }
-        @keyframes drift {
-          0%, 100% { transform: translate(0, 0); }
-          25% { transform: translate(30px, -20px); }
-          50% { transform: translate(-20px, 30px); }
-          75% { transform: translate(20px, 20px); }
-        }
         @keyframes ripple {
           to { width: 200px; height: 200px; opacity: 0; }
         }
@@ -393,15 +234,7 @@ export default function LinkInBio() {
           background-size: 200% auto;
           animation: gradient-x 4s ease infinite;
         }
-        @media (pointer: fine) {
-          * { cursor: none !important; }
-        }
       `}</style>
-      
-      <MorphingBlobs />
-      <CSSParticles />
-      
-      <CustomCursor mousePosition={mousePosition} isHovering={isHovering} />
 
       <main className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-20">
         <div className="w-full max-w-md mx-auto space-y-8">
@@ -421,7 +254,7 @@ export default function LinkInBio() {
           <RevealSection delay={150} className="text-center space-y-3">
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
               <span className="block">From ideas to</span>
-              <span className="bg-gradient-to-r from-purple-400 via-white to-blue-400 bg-clip-text text-transparent animate-gradient-x">
+              <span className="bg-gradient-to-r from-emerald-400 via-white to-teal-400 bg-clip-text text-transparent animate-gradient-x">
                 real products.
               </span>
             </h1>
@@ -436,72 +269,21 @@ export default function LinkInBio() {
               label="View Portfolio"
               variant="primary"
               icon={<ExternalLink className="w-4 h-4" />}
-              onHoverChange={handleHoverChange}
             />
           </RevealSection>
 
-          <RevealSection delay={400} className="space-y-3">
+          <RevealSection delay={400} className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto">
             {links.map((link) => (
               <TiltButton
                 key={link.label}
                 href={link.href}
                 label={link.label}
                 icon={link.icon}
-                onHoverChange={handleHoverChange}
               />
             ))}
           </RevealSection>
 
           <RevealSection delay={550} className="pt-6">
-            <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4">
-              <h3 className="text-xs font-medium text-white/40 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                Currently Building
-              </h3>
-              <div className="space-y-2">
-                {projects.map((project) => (
-                  <div 
-                    key={project.name}
-                    className="flex items-center justify-between group cursor-pointer py-1"
-                    onMouseEnter={() => setIsHovering(true)}
-                    onMouseLeave={() => setIsHovering(false)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-white/40 group-hover:text-purple-400 transition-colors duration-200">
-                        {project.icon}
-                      </span>
-                      <span className="text-sm text-white/70 group-hover:text-white transition-colors duration-200">
-                        {project.name}
-                      </span>
-                    </div>
-                    <span className="text-xs text-white/30">{project.status}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </RevealSection>
-
-          <RevealSection delay={700} className="pt-6">
-            <footer className="flex items-center justify-center gap-6">
-              {useMemo(() => [
-                { icon: <Github className="w-5 h-5" />, href: "https://github.com/Karan-Raj-KR" },
-                { icon: <Linkedin className="w-5 h-5" />, href: "https://linkedin.com/in/karanrajkr" },
-                { icon: <Instagram className="w-5 h-5" />, href: "https://instagram.com/karan.rajkr" },
-                { icon: <Mail className="w-5 h-5" />, href: "mailto:karanrajkr2008@gmail.com" },
-              ].map((item, i) => (
-                <a
-                  key={i}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white/40 hover:text-white transition-all duration-200 hover:scale-125"
-                  onMouseEnter={() => setIsHovering(true)}
-                  onMouseLeave={() => setIsHovering(false)}
-                >
-                  {item.icon}
-                </a>
-              )), [])}
-            </footer>
             <p className="text-center text-xs text-white/20 mt-4">
               © {new Date().getFullYear()} Karan Raj
             </p>

@@ -13,13 +13,3 @@ body {
   color: #ffffff;
 }
 
-@layer utilities {
-  .glow-blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(100px);
-    opacity: 0.15;
-    z-index: -1;
-    pointer-events: none;
-  }
-}
