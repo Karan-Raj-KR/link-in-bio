@@ -56,23 +56,41 @@ export default function Page() {
             <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--ink-2)]">
               Featured
             </span>
-            <ul className="mt-3 flex flex-col gap-2">
-              {site.featured.map((item) => (
-                <li key={item.title}>
-                  <a
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-start gap-3 rounded-2xl border border-[var(--card-border)] px-4 py-3 transition-colors hover:border-[var(--card-border-hover)] hover:bg-white/[0.02]"
-                  >
+            <ul className="mt-3 flex flex-col gap-2.5">
+              {site.featured.map((item) => {
+                const inner = (
+                  <>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[14px] font-medium text-[var(--ink-0)]">{item.title}</span>
-                      <span className="mt-0.5 block text-[13px] leading-snug text-[var(--ink-1)]">{item.blurb}</span>
+                      <span className="block text-[15px] font-medium text-[var(--ink-0)]">{item.title}</span>
+                      <span className="mt-1 block text-[13px] leading-snug text-[var(--ink-1)]">{item.blurb}</span>
                     </span>
-                    <ArrowUpRight className="mt-0.5 h-4 w-4 shrink-0 text-[var(--ink-2)] transition-all group-hover:text-[var(--ink-0)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                  </a>
-                </li>
-              ))}
+                    {item.href ? (
+                      <ArrowUpRight className="mt-0.5 h-4 w-4 shrink-0 text-[var(--ink-2)] transition-all group-hover:text-[var(--ink-0)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    ) : (
+                      <span className="mt-0.5 shrink-0 rounded-full border border-[var(--card-border)] px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var(--ink-2)]">
+                        Soon
+                      </span>
+                    )}
+                  </>
+                );
+                const base = "group flex items-start gap-3 rounded-2xl border border-[var(--card-border)] px-4 py-4";
+                return (
+                  <li key={item.title}>
+                    {item.href ? (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`${base} transition-colors hover:border-[var(--card-border-hover)] hover:bg-white/[0.02]`}
+                      >
+                        {inner}
+                      </a>
+                    ) : (
+                      <div className={base}>{inner}</div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 

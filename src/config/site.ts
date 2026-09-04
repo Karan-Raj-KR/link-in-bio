@@ -10,16 +10,24 @@ export const site = {
   // Avatar: "photo" uses /public/profile.jpeg, "initials" shows the letters below.
   avatar: "photo" as "photo" | "initials",
   initials: "KR",
-  tagline: "I build software, experiment with AI, and ship real products.", // ⟵ PLACEHOLDER — your one-line pitch
+  tagline: "Open source, hackathons, and software people pay for.",
 
   // --- Status / current focus (the pill at the top) ---
-  status: "Currently building something new.", // ⟵ PLACEHOLDER — verbatim status text
+  status: "Registering my company.",
 
-  // --- Featured work: exactly 3, one line + live link ---
+  // --- Featured work: one line + live link each. An empty href renders the
+  //     card as shipped-but-unlinked (no dead link). ---
   featured: [
-    { title: "Project One", blurb: "One line on what it is and why it matters.", href: "https://karanrajkr.com" }, // ⟵ PLACEHOLDER
-    { title: "Project Two", blurb: "One line on what it is and why it matters.", href: "https://karanrajkr.com" }, // ⟵ PLACEHOLDER
-    { title: "Project Three", blurb: "One line on what it is and why it matters.", href: "https://karanrajkr.com" }, // ⟵ PLACEHOLDER
+    {
+      title: "crewai-recipes",
+      blurb: "Open-source CrewAI multi-agent template library. MIT licensed, 9 forks, merged PRs from outside contributors.",
+      href: "https://github.com/Karan-Raj-KR/crewai-recipes",
+    },
+    {
+      title: "VoiceRx",
+      blurb: "Voice health assistant. Built solo at HackBLR 2026 — Top 40 of 2,500+ teams.",
+      href: "", // ⟵ AWAITING LINK — paste the VoiceRx URL here before deploy
+    },
   ],
 
   // --- GitHub activity (contribution graph) ---
@@ -32,7 +40,7 @@ export const site = {
 
   // --- Calls to action ---
   ctaPrimary: { label: "Visit karanrajkr.com", href: "https://karanrajkr.com" }, // ⟵ confirm .com is live
-  ctaSecondary: { label: "Get in touch", href: "mailto:karanrajkr2008@gmail.com" }, // ⟵ PLACEHOLDER email
+  ctaSecondary: { label: "Get in touch", href: "mailto:mail@karanrajkr.com" }, // switch to gmail if this inbox isn't live yet
 
   // --- Socials (rendered as small icons) ---
   socials: [
@@ -43,5 +51,5 @@ export const site = {
 
   // --- One memorable visual idea: the accent behind everything ---
   // Change this one value to re-tint the whole page (glow, links, CTA).
-  accent: "#F59E0B", // amber. Try "#38BDF8" (sky) or "#A78BFA" (violet).
+  accent: "#38BDF8", // sky blue. Try "#F59E0B" (amber) or "#A78BFA" (violet).
 } as const;
