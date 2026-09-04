@@ -1,24 +1,25 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
+import { site } from '@/config/site';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+const display = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+  weight: ['500', '600', '700'],
+});
 
 export const metadata: Metadata = {
-  title: 'Karan Raj | Developer • Builder • Founder',
-  description: 'From ideas to real products. I build software, experiment with AI, and ship real-world projects.',
+  title: `${site.name} — ${site.tagline}`,
+  description: `${site.status} ${site.tagline}`,
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} antialiased dark`}>
-      <body className="font-sans min-h-screen bg-black text-white selection:bg-white/20 overflow-x-hidden relative">
-        {children}
-      </body>
+    <html lang="en" className={`${inter.variable} ${display.variable} antialiased`}>
+      <body style={{ ['--accent' as string]: site.accent }}>{children}</body>
     </html>
   );
 }
