@@ -1,25 +1,37 @@
-import type { Metadata } from 'next';
-import { Inter, Space_Grotesk } from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { site } from '@/config/site';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
-const display = Space_Grotesk({
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-display',
+  variable: '--font-inter',
   display: 'swap',
-  weight: ['500', '600', '700'],
 });
 
+export const viewport: Viewport = {
+  themeColor: '#000000',
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
-  title: `${site.name} — ${site.tagline}`,
-  description: `${site.status} ${site.tagline}`,
+  title: `${site.name} — Links`,
+  description: `${site.name} · ${site.tagline}`,
+  metadataBase: new URL('https://bio.karanrajkr.com'),
+  openGraph: {
+    title: `${site.name}`,
+    description: site.tagline,
+    type: 'website',
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${display.variable} antialiased`}>
-      <body style={{ ['--accent' as string]: site.accent }}>{children}</body>
+    <html lang="en" className={`${inter.variable} bg-black text-white antialiased`}>
+      <body className="min-h-[100dvh] bg-black text-white selection:bg-white selection:text-black">
+        {children}
+      </body>
     </html>
   );
 }
