@@ -1,147 +1,293 @@
-import Image from 'next/image';
-import { Github, Linkedin, Instagram, Mail, ArrowUpRight } from 'lucide-react';
-import { site } from '@/config/site';
-import GitHubGraph from '@/components/GitHubGraph';
+"use client";
 
-const socialIcon = {
-  github: Github,
-  linkedin: Linkedin,
-  instagram: Instagram,
-  mail: Mail,
+import { useState, useEffect, useCallback, memo, useRef } from "react";
+import { Github, Linkedin, Instagram, Mail, ExternalLink } from "lucide-react";
+import { site } from "@/config/site";
+
+// ============================================
+// TEXT SCRAMBLE
+// ============================================
+const ScrambleText = memo(function ScrambleText({ text }: { text: string }) {
+  const [displayText, setDisplayText] = useState(text);
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  useEffect(() => {
+    let iteration = 0;
+    const interval = setInterval(() => {
+      setDisplayText(
+        text
+          .split("")
+          .map((char, index) => {
+            if (char === " " || char === "•") return char;
+            if (index < iteration) return text[index];
+            return chars[Math.floor(Math.random() * 26)];
+          })
+          .join("")
+      );
+      if (iteration >= text.length) clearInterval(interval);
+      iteration += 0.4;
+    }, 25);
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return <span>{displayText}</span>;
+});
+
+// ============================================
+// 3D TILT BUTTON WITH 150MS HOVER LIFT & BORDER BRIGHTENING
+// ============================================
+interface TiltButtonProps {
+  href: string;
+  label: string;
+  variant?: "primary" | "secondary";
+  icon?: React.ReactNode;
+}
+
+const TiltButton = memo(function TiltButton({
+  href,
+  label,
+  variant = "secondary",
+  icon,
+}: TiltButtonProps) {
+  const [transform, setTransform] = useState("translate3d(0,0,0)");
+  const [isHovered, setIsHovered] = useState(false);
+  const [ripples, setRipples] = useState<number[]>([]);
+  const buttonRef = useRef<HTMLAnchorElement>(null);
+  const isPrimary = variant === "primary";
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = (e.clientX - rect.left - rect.width / 2) / rect.width;
+    const y = (e.clientY - rect.top - rect.height / 2) / rect.height;
+    setTransform(`perspective(1000px) rotateX(${y * -8}deg) rotateY(${x * 8}deg) translateY(-2px)`);
+  }, []);
+
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setTransform("translate3d(0,0,0)");
+    setIsHovered(false);
+  }, []);
+
+  const handleClick = useCallback(() => {
+    const id = Date.now();
+    setRipples((prev) => [...prev, id]);
+    setTimeout(() => setRipples((prev) => prev.filter((r) => r !== id)), 600);
+  }, []);
+
+  return (
+    <a
+      ref={buttonRef}
+      href={href}
+      target={href.startsWith("mailto:") ? undefined : "_blank"}
+      rel={href.startsWith("mailto:") ? undefined : "noopener noreferrer"}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleMouseEnter}
+      onClick={handleClick}
+      className={`
+        group relative flex items-center justify-center gap-2.5
+        w-full py-4 px-6 rounded-2xl
+        font-medium text-sm overflow-hidden
+        will-change-transform cursor-pointer
+        transition-all duration-150 ease-out
+        ${
+          isPrimary
+            ? "bg-white text-black border border-white hover:bg-zinc-100 hover:border-white/80 hover:-translate-y-0.5 hover:shadow-[0_4px_24px_rgba(255,255,255,0.2)] active:translate-y-0 active:scale-[0.99]"
+            : "bg-white/5 text-white/90 backdrop-blur-md border border-white/10 hover:border-white/40 hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(255,255,255,0.06)] active:translate-y-0 active:scale-[0.99]"
+        }
+      `}
+      style={{
+        transform,
+        transition:
+          "transform 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out",
+      }}
+    >
+      {ripples.map((id, i) => (
+        <span
+          key={id}
+          className="pointer-events-none absolute rounded-full bg-white/25"
+          style={{
+            left: "50%",
+            top: "50%",
+            width: 10,
+            height: 10,
+            transform: "translate(-50%, -50%)",
+            animation: `ripple 0.6s ease-out forwards`,
+            animationDelay: `${i * 50}ms`,
+          }}
+        />
+      ))}
+
+      {isPrimary && (
+        <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
+      )}
+
+      {icon && (
+        <span className={`transition-transform duration-150 ${isHovered ? "scale-110" : ""}`}>
+          {icon}
+        </span>
+      )}
+      <span>{label}</span>
+      <ExternalLink
+        className={`h-4 w-4 transition-all duration-150 ${
+          isHovered ? "translate-x-0 opacity-100" : "-translate-x-1.5 opacity-0"
+        }`}
+      />
+    </a>
+  );
+});
+
+// ============================================
+// MONOGRAM AVATAR (Single Green Accent Dot)
+// ============================================
+const FloatingAvatar = memo(function FloatingAvatar() {
+  return (
+    <div className="group relative">
+      <div
+        className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{
+          background: "radial-gradient(circle, rgba(16,185,129,0.3) 0%, transparent 70%)",
+          transform: "scale(1.4)",
+          animation: "pulse-glow 2s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-zinc-800 to-black transition-transform duration-300 group-hover:scale-105"
+        style={{ boxShadow: "0 0 30px rgba(255,255,255,0.1)" }}
+      >
+        <span className="text-2xl font-bold text-white">{site.initials}</span>
+        <div className="absolute inset-0 rounded-full ring-1 ring-white/20" />
+      </div>
+      {/* The single retained green dot on the page */}
+      <div className="absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-black bg-emerald-500" />
+    </div>
+  );
+});
+
+// Icon lookup helper
+const iconMap = {
+  github: <Github className="h-4 w-4" />,
+  linkedin: <Linkedin className="h-4 w-4" />,
+  instagram: <Instagram className="h-4 w-4" />,
+  mail: <Mail className="h-4 w-4" />,
 } as const;
 
-export default function Page() {
+// ============================================
+// MAIN PAGE
+// ============================================
+export default function LinkInBio() {
   return (
-    <>
-      <div className="aurora" aria-hidden />
-
-      <main className="relative z-10 mx-auto flex min-h-[100dvh] max-w-[420px] flex-col justify-center px-5 py-14">
-        <div className="rounded-[28px] border border-[var(--card-border)] bg-[var(--card)] p-6 backdrop-blur-xl sm:p-7">
-
-          {/* Header: avatar + status */}
-          <div className="rise flex items-center gap-4" style={{ ['--d' as string]: '0ms' }}>
-            {site.avatar === 'photo' ? (
-              <Image
-                src="/profile.jpeg"
-                alt={site.name}
-                width={56}
-                height={56}
-                priority
-                className="h-14 w-14 rounded-full object-cover ring-1 ring-white/10"
-              />
-            ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/[0.06] text-lg font-semibold ring-1 ring-white/10">
-                {site.initials}
-              </div>
-            )}
-            <span className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] px-3 py-1.5 text-[12px] text-[var(--ink-1)]">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-70" style={{ background: 'var(--accent)' }} />
-                <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: 'var(--accent)' }} />
-              </span>
-              {site.status}
-            </span>
+    <main className="relative z-10 flex min-h-[100dvh] w-full flex-col items-center justify-center px-4 py-8 sm:py-12 my-auto">
+      <div className="mx-auto my-auto flex w-full max-w-[420px] flex-col items-center text-center space-y-6 sm:space-y-7">
+        
+        {/* Monogram, Name, Title, and Status Pill (40ms Stagger) */}
+        <div
+          className="stagger-item flex flex-col items-center text-center space-y-3"
+          style={{ ['--delay' as string]: '0ms' }}
+        >
+          <FloatingAvatar />
+          <div className="space-y-1">
+            <h2 className="text-xl font-semibold tracking-tight">
+              <ScrambleText text={site.name} />
+            </h2>
+            <p className="text-sm tracking-wide text-white/50">
+              <ScrambleText text={site.title} />
+            </p>
           </div>
-
-          {/* Name + pitch */}
-          <div className="rise mt-6" style={{ ['--d' as string]: '70ms' }}>
-            <h1 className="font-[family-name:var(--font-display)] text-[34px] font-semibold leading-[1.05] tracking-[-0.02em]">
-              {site.name}
-            </h1>
-            <p className="mt-2 text-[15px] leading-relaxed text-[var(--ink-1)]">{site.tagline}</p>
-          </div>
-
-          {/* Featured work */}
-          <div className="rise mt-8" style={{ ['--d' as string]: '140ms' }}>
-            <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--ink-2)]">
-              Featured
-            </span>
-            <ul className="mt-3 flex flex-col gap-2.5">
-              {site.featured.map((item) => {
-                const inner = (
-                  <>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[15px] font-medium text-[var(--ink-0)]">{item.title}</span>
-                      <span className="mt-1 block text-[13px] leading-snug text-[var(--ink-1)]">{item.blurb}</span>
-                    </span>
-                    {item.href ? (
-                      <ArrowUpRight className="mt-0.5 h-4 w-4 shrink-0 text-[var(--ink-2)] transition-all group-hover:text-[var(--ink-0)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                    ) : (
-                      <span className="mt-0.5 shrink-0 rounded-full border border-[var(--card-border)] px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var(--ink-2)]">
-                        Soon
-                      </span>
-                    )}
-                  </>
-                );
-                const base = "group flex items-start gap-3 rounded-2xl border border-[var(--card-border)] px-4 py-4";
-                return (
-                  <li key={item.title}>
-                    {item.href ? (
-                      <a
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`${base} transition-colors hover:border-[var(--card-border-hover)] hover:bg-white/[0.02]`}
-                      >
-                        {inner}
-                      </a>
-                    ) : (
-                      <div className={base}>{inner}</div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          {/* GitHub activity */}
-          <div className="rise mt-8" style={{ ['--d' as string]: '210ms' }}>
-            <GitHubGraph />
-          </div>
-
-          {/* CTAs */}
-          <div className="rise mt-8 flex flex-col gap-2.5" style={{ ['--d' as string]: '280ms' }}>
-            <a
-              href={site.ctaPrimary.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[15px] font-semibold text-black transition-transform active:scale-[0.98]"
-              style={{ background: 'var(--accent)' }}
-            >
-              {site.ctaPrimary.label}
-              <ArrowUpRight className="h-4 w-4" />
-            </a>
-            <a
-              href={site.ctaSecondary.href}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-[var(--card-border)] px-5 py-3.5 text-[15px] font-medium text-[var(--ink-0)] transition-colors hover:border-[var(--card-border-hover)] active:scale-[0.98]"
-            >
-              {site.ctaSecondary.label}
-            </a>
-          </div>
-
-          {/* Socials */}
-          <div className="rise mt-7 flex items-center justify-between border-t border-[var(--card-border)] pt-5" style={{ ['--d' as string]: '350ms' }}>
-            <div className="flex gap-1">
-              {site.socials.map((s) => {
-                const Icon = socialIcon[s.icon];
-                return (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={s.label}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--ink-1)] transition-colors hover:bg-white/[0.05] hover:text-[var(--ink-0)]"
-                  >
-                    <Icon className="h-[18px] w-[18px]" />
-                  </a>
-                );
-              })}
+          {/* Status pill: Quiet text pill without competing green dot */}
+          <div className="pt-1">
+            <div className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1 text-xs text-white/70">
+              <span>{site.status}</span>
             </div>
-            <span className="text-[11px] text-[var(--ink-2)]">© {new Date().getFullYear()} {site.name}</span>
           </div>
         </div>
-      </main>
-    </>
+
+        {/* Headline with Unified Gradient on "real products." */}
+        <div
+          className="stagger-item text-center space-y-2.5"
+          style={{ ['--delay' as string]: '80ms' }}
+        >
+          <h1 className="text-4xl font-bold tracking-tight leading-tight sm:text-5xl">
+            <span className="block">{site.headline.line1}</span>
+            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent animate-gradient-x">
+              {site.headline.highlight}
+            </span>
+          </h1>
+          <p className="mx-auto max-w-xs text-sm leading-relaxed text-white/50 sm:text-base">
+            {site.headline.subtext}
+          </p>
+        </div>
+
+        {/* Primary CTA (View Portfolio) */}
+        <div
+          className="stagger-item w-full max-w-sm mx-auto"
+          style={{ ['--delay' as string]: '160ms' }}
+        >
+          <TiltButton
+            href={site.portfolio.href}
+            label={site.portfolio.label}
+            variant="primary"
+            icon={<ExternalLink className="h-4 w-4" />}
+          />
+        </div>
+
+        {/* 2x2 Social Grid */}
+        <div
+          className="stagger-item grid w-full max-w-sm grid-cols-2 gap-3 mx-auto"
+          style={{ ['--delay' as string]: '240ms' }}
+        >
+          {site.links.map((link, idx) => (
+            <div
+              key={link.label}
+              className="stagger-item"
+              style={{ ['--delay' as string]: `${280 + idx * 40}ms` }}
+            >
+              <TiltButton
+                href={link.href}
+                label={link.label}
+                icon={iconMap[link.icon]}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Readable proof line above footer - Centered on vertical axis */}
+        <div
+          className="stagger-item flex w-full justify-center text-center pt-1"
+          style={{ ['--delay' as string]: '440ms' }}
+        >
+          <a
+            href={site.proof.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex flex-wrap items-center justify-center text-center gap-1.5 text-[13px] text-zinc-300 transition-colors duration-150 hover:text-white sm:text-sm"
+          >
+            <span className="font-semibold text-white underline-offset-4 group-hover:underline">
+              {site.proof.title}
+            </span>
+            <span className="text-zinc-500">—</span>
+            <span className="text-zinc-300">{site.proof.description}</span>
+            <ExternalLink
+              className="h-3.5 w-3.5 text-zinc-400 transition-colors duration-150 group-hover:text-white"
+              aria-hidden="true"
+            />
+          </a>
+        </div>
+
+        {/* Footer */}
+        <div
+          className="stagger-item"
+          style={{ ['--delay' as string]: '480ms' }}
+        >
+          <p className="text-center text-xs text-white/30">
+            © {new Date().getFullYear()} {site.name}
+          </p>
+        </div>
+      </div>
+    </main>
   );
 }
