@@ -6,22 +6,14 @@
 
 :root {
   color-scheme: dark;
-  --bg: #000000;
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.62);
-  --text-muted: rgba(255, 255, 255, 0.38);
-  --border-subtle: rgba(255, 255, 255, 0.12);
-  --border-hover: rgba(255, 255, 255, 0.32);
-  --surface-hover: rgba(255, 255, 255, 0.04);
 }
 
 html, body {
-  background-color: var(--bg);
-  color: var(--text-primary);
-  min-height: 100dvh;
+  background-color: #000000;
+  color: #ffffff;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  min-height: 100dvh;
 }
 
 body {
@@ -30,11 +22,44 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Subtle stagger entrance on load. Pure CSS, zero JS runtime overhead. */
-@keyframes fadeInSlide {
+@keyframes ripple {
+  to {
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1.4);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes gradient-x {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-x {
+  background-size: 200% auto;
+  animation: gradient-x 4s ease infinite;
+}
+
+/* 40ms stagger animation on load, respecting prefers-reduced-motion */
+@keyframes enterUp {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -42,13 +67,15 @@ body {
   }
 }
 
-.stagger-in {
-  animation: fadeInSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+.stagger-item {
+  animation: enterUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: var(--delay, 0ms);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stagger-in {
-    animation: none;
+  .stagger-item {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
