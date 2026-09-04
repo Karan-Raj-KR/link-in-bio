@@ -2,14 +2,64 @@
 
 @theme {
   --font-sans: var(--font-inter);
+  --font-display: var(--font-display);
 }
 
 :root {
   color-scheme: dark;
+  --accent: #38bdf8;
+
+  /* Ink scale */
+  --ink-0: #f4f4f6;   /* primary text */
+  --ink-1: rgba(255, 255, 255, 0.58);
+  --ink-2: rgba(255, 255, 255, 0.38);
+  --ink-3: rgba(255, 255, 255, 0.14);
+
+  /* Surfaces */
+  --bg: #08080a;
+  --card: rgba(255, 255, 255, 0.025);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-border-hover: rgba(255, 255, 255, 0.16);
+}
+
+html, body {
+  background-color: var(--bg);
+  color: var(--ink-0);
 }
 
 body {
-  background-color: #000000;
-  color: #ffffff;
+  min-height: 100dvh;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
+/* One memorable visual idea: a soft aurora bleeding from behind the card,
+   tinted by the single accent color. Pure CSS, zero JS, no paint cost on scroll. */
+.aurora {
+  position: fixed;
+  inset: -20% 0 auto 0;
+  height: 60vh;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(60% 60% at 50% 0%, color-mix(in oklab, var(--accent) 28%, transparent) 0%, transparent 70%),
+    radial-gradient(40% 50% at 80% 10%, color-mix(in oklab, var(--accent) 14%, transparent) 0%, transparent 70%);
+  filter: blur(24px);
+  opacity: 0.9;
+}
+
+/* Staggered entrance — CSS only, respects reduced motion. Never blocks first paint. */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.rise {
+  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise { animation: none; }
+}
